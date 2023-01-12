@@ -1,25 +1,43 @@
 import requests
 import json
 
-# Replace with your own access token
-access_token = "YOUR_ACCESS_TOKEN"
+client_id = "7050f6a9e8f644449a4751f35dc598ba"
+client_secret = "959e5f9b5872469c8652b3d51dadff80"
 
-# Replace with the ID of the playlist
-playlist_id = "PLAYLIST_ID"
-
-# Make a GET request to the Spotify Web API
+# Get access token
+response = requests.post(
+    "https://accounts.spotify.com/api/token",
+    data={
+        "grant_type": "client_credentials",
+    },
+    auth=(client_id, client_secret),
+)
+response.raise_for_status()
+data = json.loads(response.text)
+access_token = data["access_token"]
 headers = {
-    "Authorization": "Bearer {}".format(access_token)
+    "Authorization": f"Bearer {access_token}",
+    "Content-Type": "application/json",
 }
 
-playlist_endpoint = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
-response = requests.get(playlist_endpoint, headers=headers)
+playlist_id = input("Enter the Spotify ID of the playlist: ")
 
-# Get the JSON data from the response
-data = json.loads(response.text)
+limit = 100 # Number of tracks to retrieve per request
+offset = 0 # Initial offset
 
-# Extract the song names from the data
-songs = [item["track"]["name"] for item in data["items"]]
-
-# Print the list of songs
-print(songs)
+while True:
+    response = requests.get(
+        f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks?limit={limit}&offset={offset}",
+        headers=headers
+    )
+    response.raise_for_status()
+    data = json.loads(response.text)
+    songs = data["tracks"]["items"]
+    total = data["tracks"]["total"]
+    if not songs:
+        break
+    for song in songs:
+        print(song["track"]["name"])
+    offset += limit
+    if offset >= total:
+        break
