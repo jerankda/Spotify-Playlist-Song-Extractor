@@ -4,7 +4,6 @@ import json
 client_id = "7050f6a9e8f644449a4751f35dc598ba"
 client_secret = "959e5f9b5872469c8652b3d51dadff80"
 
-# Get access token
 response = requests.post(
     "https://accounts.spotify.com/api/token",
     data={
@@ -22,8 +21,10 @@ headers = {
 
 playlist_id = input("Enter the Spotify ID of the playlist: ")
 
-limit = 100 # Number of tracks to retrieve per request
-offset = 0 # Initial offset
+limit = 100 # tracks to retrieve per request
+offset = 0 # initial offset
+
+
 
 while True:
     response = requests.get(
